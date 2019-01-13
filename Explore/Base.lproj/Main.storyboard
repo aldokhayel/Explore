@@ -13,7 +13,7 @@
         <!--Root View Controller-->
         <scene sceneID="d1K-Os-ZcX">
             <objects>
-                <tableViewController id="zfj-gr-2Gg" customClass="TableViewController" customModule="FlickrFinder" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController id="zfj-gr-2Gg" customClass="TableViewController" customModule="Explore" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="4Yn-x8-Yb1">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -76,7 +76,7 @@
         <!--Flickr Finder-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController title="Flickr Finder" id="BYZ-38-t0r" customClass="ViewController" customModule="FlickrFinder" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Flickr Finder" id="BYZ-38-t0r" customClass="ViewController" customModule="Explore" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -115,7 +115,10 @@
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2Eh-2v-pjB">
                                 <rect key="frame" x="328" y="550.5" width="34" height="30"/>
-                                <state key="normal" title="Save"/>
+                                <color key="backgroundColor" red="0.78039215689999997" green="0.023529411760000001" blue="0.29411764709999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <state key="normal" title="Save">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
                                 <connections>
                                     <action selector="saveBtn:" destination="BYZ-38-t0r" eventType="touchUpInside" id="2YO-h1-38P"/>
                                 </connections>
@@ -192,7 +195,7 @@
         <!--Photos Titles-->
         <scene sceneID="ONo-7W-VHQ">
             <objects>
-                <tableViewController id="hu2-di-qzf" customClass="TableViewController" customModule="FlickrFinder" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController id="hu2-di-qzf" customClass="TableViewController" customModule="Explore" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="kgr-Ub-Ecz">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

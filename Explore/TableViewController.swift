@@ -24,6 +24,11 @@ class TableViewController: UITableViewController {
 //        } catch {
 //            print(error)
 //        }
+        if count == 0 {
+            let alert = UIAlertController(title: "No titles", message: "Please save photo titles from first page firstly to display!", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+        }
         tableView.reloadData()
     }
     

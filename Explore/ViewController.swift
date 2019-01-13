@@ -37,6 +37,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         phraseTextField.borderStyle = UITextField.BorderStyle.roundedRect
+        saveButton.layer.cornerRadius = 5
         //setupFetchedResultsController()
         saveButton.isEnabled = false
     }
