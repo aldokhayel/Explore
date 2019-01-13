@@ -208,6 +208,7 @@ class ViewController: UIViewController {
                                             self.imageURL = imageUrlString
                                             self.imageTitle = photoTitle ?? "nil"
                                             self.saveButton.isEnabled = true
+                                            print(self.imageTitle)
                                         }
                 } else {
                     self.displayError(error: "Image does not exist at \(String(describing: imageURL))")
@@ -223,7 +224,8 @@ class ViewController: UIViewController {
     }
     
     @IBAction func saveBtn(_ sender: Any) {
-        saveImage(imageURL: imageURL, imageData: imageData, imageTitle: imageTitle)
+        print(self.imageTitle)
+        saveImage(imageURL: self.imageURL, imageData: self.imageData, imageTitle: self.imageTitle)
         let alert = UIAlertController(title: "Saved", message: "It's saved successfuly", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(alert, animated: true, completion: nil)
