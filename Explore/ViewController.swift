@@ -221,6 +221,9 @@ class ViewController: UIViewController {
     
 
     private func displayError(error: String){
+        let alert = UIAlertController(title: "Error", message: error, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+        self.present(alert, animated: true, completion: nil)
         print(error)
     }
     
