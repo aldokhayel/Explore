@@ -13,6 +13,7 @@ class API: NSObject {
     
     var SVC = SearchViewController()
     static let shared = API()
+    
     func FlickrURLFromParameters(parameters: [String: AnyObject]) -> URL {
         var components = URLComponents()
         components.scheme = Constants.Flickr.APISchema
@@ -153,4 +154,7 @@ class API: NSObject {
     private func printError(error: String){
         print(error)
     }
+    
 }
+
+

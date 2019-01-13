@@ -38,7 +38,6 @@
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="line" placeholder="Enter phrase" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="IS0-8g-hng">
                                 <rect key="frame" x="16" y="548" width="248" height="35"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="248" id="Hwu-8Z-WkE"/>
                                     <constraint firstAttribute="height" constant="35" id="OX6-S7-CgI"/>
                                 </constraints>
                                 <nil key="textColor"/>
@@ -60,6 +59,7 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="S0e-Qr-Gah">
                                 <rect key="frame" x="272" y="548" width="48" height="35"/>
                                 <constraints>
+                                    <constraint firstAttribute="width" constant="48" id="1Qr-uN-Lc8"/>
                                     <constraint firstAttribute="height" constant="35" id="oZA-qN-Lwo"/>
                                 </constraints>
                                 <state key="normal" title="Search"/>
@@ -70,6 +70,9 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2Eh-2v-pjB">
                                 <rect key="frame" x="328" y="550.5" width="34" height="30"/>
                                 <color key="backgroundColor" red="0.78039215689999997" green="0.023529411760000001" blue="0.29411764709999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="34" id="DQF-4x-SLp"/>
+                                </constraints>
                                 <state key="normal" title="Save">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </state>

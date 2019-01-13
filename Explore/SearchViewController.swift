@@ -56,7 +56,10 @@ class SearchViewController: UIViewController {
             Constants.FlickrParameterKeys.Format: Constants.FlickrParameterValues.Format,
             Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJsonCallBack
         ]
-        displayImageFromFlickrBySearch(methodParameters: parameters as [String : AnyObject])
+        
+        let randomPgae = 20
+        self.displayImageFromFlickrBySearch(parameters as [String : AnyObject], randomPgae)
+       //displayImageFromFlickrBySearch(methodParameters: parameters as [String : AnyObject])
     }
 
     
@@ -74,57 +77,7 @@ class SearchViewController: UIViewController {
         return components.url!
     }
     
-    private func displayImageFromFlickrBySearch(methodParameters: [String: AnyObject]){
-        let session = URLSession.shared
-        let request = URLRequest(url: FlickrURLFromParameters(parameters: methodParameters))
-        print("request is: \(request)")
-        let task = session.dataTask(with: request){(data, response, error) in
-            guard let data = data else {
-                DispatchQueue.main.async {
-                    self.printError(error: "could not load data")
-                }
-                return
-            }
-            guard error == nil else {
-                self.printError(error: "errro in task func \(String(describing: error))")
-                return
-            }
-            guard let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode >= 200 && statusCode <= 299 else {
-                self.printError(error: "The response is more than 2xx!")
-                return
-            }
-    
-            let parsedResult: [String:AnyObject]!
-            do {
-                parsedResult = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String:AnyObject]
-            } catch {
-                self.printError(error: "Could not parsed the data JSON \(data)")
-                return
-            }
-            
-            guard let stat = parsedResult[Constants.FlickrResponseKeys.Status] as? String, stat == Constants.FlickrResponseValues.OKStatus else {
-                self.printError(error: "Flickr API returned an error. See error code and message in \(String(describing: parsedResult))")
-                return
-            }
-            
-            guard let photosDictionary = parsedResult[Constants.FlickrResponseKeys.Photos] as? [String: AnyObject] else {
-                self.printError(error: "Could not find photos \(Constants.FlickrResponseKeys.Photos) in \(String(describing: parsedResult))")
-                return
-            }
-            
-            guard let totalPages = photosDictionary[Constants.FlickrResponseKeys.Pages] as? Int else {
-                self.printError(error: "Could not find page number \(Constants.FlickrResponseKeys.Pages) in \(photosDictionary)")
-                return
-            }
-            
-            let pageLimit = min(totalPages, 40)
-            let randomPgae = Int(arc4random_uniform(UInt32(Int32(pageLimit)))) + 1
-            self.displayImageFromFlickrBySearch(methodParameters, randomPgae)
-        }
-        task.resume()
-    }
-    
-    private func displayImageFromFlickrBySearch(_ methodParameters: [String: AnyObject],_ withPageNumber: Int){
+     func displayImageFromFlickrBySearch(_ methodParameters: [String: AnyObject],_ withPageNumber: Int){
         var methodParametersWithPageNumber = methodParameters
         methodParametersWithPageNumber[Constants.FlickrResponseKeys.Pages] = withPageNumber as AnyObject
         
@@ -220,6 +173,7 @@ class SearchViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(alert, animated: true, completion: nil)
     }
+    
     
     func saveImage(imageURL: String, imageData: Data?, imageTitle: String) {
         let entity = NSEntityDescription.entity(forEntityName: "Images", in: context)
