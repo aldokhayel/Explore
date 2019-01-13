@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  SearchViewController.swift
 //  FlickrFinder
 //
 //  Created by Abdulrahman on 06/12/2018.
@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class ViewController: UIViewController {
+class SearchViewController: UIViewController {
     
     var keyboardOnScreen = false
     
@@ -22,42 +22,24 @@ class ViewController: UIViewController {
     @IBOutlet weak var phraseSearchButton: UIButton!
     @IBOutlet weak var photoTitleLabel: UILabel!
     var dataController: DataController!
-    var fetchedResultsController:NSFetchedResultsController<Images>!
     let context = AppDelegate.viewContext
-    let persistentContainer = AppDelegate.persistentContainer
-    var array: [NSManagedObject] = []
-    //var images: [Images] = []
-//    lazy var fetchResultController: NSFetchedResultsController = {
-//        let fetchRequst = NSFetchRequest<NSFetchRequestResult>(entityName: "Images")
-//        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer
-//        let ftc = NSFetchedResultsController(fetchRequest: fetchRequst, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
-//        return ftc
-//    }()
     
     override func viewDidLoad() {
+        phraseTextField.delegate = self
         super.viewDidLoad()
         phraseTextField.borderStyle = UITextField.BorderStyle.roundedRect
         saveButton.layer.cornerRadius = 5
-        //setupFetchedResultsController()
+        phraseSearchButton.layer.cornerRadius = 5
         saveButton.isEnabled = false
+        subscribeToNotification(UIResponder.keyboardWillShowNotification, selector: #selector(keyboardWillShow))
+        subscribeToNotification(UIResponder.keyboardWillHideNotification, selector: #selector(keyboardWillHide))
+        saveButton.sizeToFit()
+        phraseSearchButton.sizeToFit()
     }
-    
-    fileprivate func setupFetchedResultsController() {
-        let fetchRequest:NSFetchRequest<Images> = Images.fetchRequest()
-        let sortDescriptor = NSSortDescriptor(key: "title", ascending: false)
-        fetchRequest.sortDescriptors = [sortDescriptor]
-
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
-        fetchedResultsController.delegate = self
-        do {
-            try fetchedResultsController.performFetch()
-        } catch {
-            fatalError("The fetch could not be performed: \(error.localizedDescription)")
-        }
-    }
-
         
-    
+    override func viewWillDisappear(_ animated: Bool) {
+        unsubscribeFromAllNotifications()
+    }
     
     @IBAction func searchByPhrase(_ sender: Any) {
         guard !phraseTextField.text!.isEmpty else {
@@ -98,15 +80,17 @@ class ViewController: UIViewController {
         print("request is: \(request)")
         let task = session.dataTask(with: request){(data, response, error) in
             guard let data = data else {
-                self.displayError(error: "There is no data")
+                DispatchQueue.main.async {
+                    self.printError(error: "could not load data")
+                }
                 return
             }
             guard error == nil else {
-                self.displayError(error: "errro in task func \(String(describing: error))")
+                self.printError(error: "errro in task func \(String(describing: error))")
                 return
             }
             guard let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode >= 200 && statusCode <= 299 else {
-                self.displayError(error: "The response is more than 2xx!")
+                self.printError(error: "The response is more than 2xx!")
                 return
             }
     
@@ -114,22 +98,22 @@ class ViewController: UIViewController {
             do {
                 parsedResult = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String:AnyObject]
             } catch {
-                self.displayError(error: "Could not parsed the data JSON \(data)")
+                self.printError(error: "Could not parsed the data JSON \(data)")
                 return
             }
             
             guard let stat = parsedResult[Constants.FlickrResponseKeys.Status] as? String, stat == Constants.FlickrResponseValues.OKStatus else {
-                self.displayError(error: "Flickr API returned an error. See error code and message in \(String(describing: parsedResult))")
+                self.printError(error: "Flickr API returned an error. See error code and message in \(String(describing: parsedResult))")
                 return
             }
             
             guard let photosDictionary = parsedResult[Constants.FlickrResponseKeys.Photos] as? [String: AnyObject] else {
-                self.displayError(error: "Could not find photos \(Constants.FlickrResponseKeys.Photos) in \(String(describing: parsedResult))")
+                self.printError(error: "Could not find photos \(Constants.FlickrResponseKeys.Photos) in \(String(describing: parsedResult))")
                 return
             }
             
             guard let totalPages = photosDictionary[Constants.FlickrResponseKeys.Pages] as? Int else {
-                self.displayError(error: "Could not find page number \(Constants.FlickrResponseKeys.Pages) in \(photosDictionary)")
+                self.printError(error: "Could not find page number \(Constants.FlickrResponseKeys.Pages) in \(photosDictionary)")
                 return
             }
             
@@ -148,17 +132,19 @@ class ViewController: UIViewController {
         let request = URLRequest(url: FlickrURLFromParameters(parameters: methodParameters))
         let task =  session.dataTask(with: request){(data, response, error) in
             guard error == nil else {
-                self.displayError(error: "error in \(String(describing: error))")
+                self.printError(error: "error in \(String(describing: error))")
                 return
             }
             
             guard let data = data else {
-                self.displayError(error: "could not load data")
+                DispatchQueue.main.async {
+                     self.printError(error: "could not load data")
+                }
                 return
             }
             
             guard let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode >= 200 && statusCode <= 299 else {
-                self.displayError(error: "the status code is more than 2xx!")
+                self.printError(error: "the status code is more than 2xx!")
                 return
             }
             
@@ -166,27 +152,27 @@ class ViewController: UIViewController {
             do {
                 parsedResult = try! JSONSerialization.jsonObject(with: data, options: .allowFragments) as! [String : AnyObject]
             } catch {
-                self.displayError(error: "could not load data \(parsedResult)")
+                self.printError(error: "could not load data \(parsedResult)")
                 return
             }
             
             guard let stat = parsedResult[Constants.FlickrResponseKeys.Status], stat as! String == Constants.FlickrResponseValues.OKStatus else {
-                self.displayError(error: "the status is not ok")
+                self.printError(error: "the status is not ok")
                 return
             }
             
             guard let photosDictionary = parsedResult[Constants.FlickrResponseKeys.Photos] as? [String:AnyObject] else {
-                self.displayError(error: "could not load photos ")
+                self.printError(error: "could not load photos ")
                 return
             }
             print(photosDictionary.count)
             guard let photosArray = photosDictionary[Constants.FlickrResponseKeys.Photo] as? [[String:AnyObject]] else {
-                self.displayError(error: "could not load photo")
+                self.printError(error: "could not load photo")
                 return
             }
             
             if photosArray.count == 0 {
-                self.displayError(error: "No Photos Found. Search Again.")
+                self.printError(error: "No Photos Found. Search Again.")
                 return
             } else {
                 let randomPhotoIndex = Int(arc4random_uniform(UInt32(photosArray.count)))
@@ -194,7 +180,7 @@ class ViewController: UIViewController {
                 let photoTitle = photoDictionary[Constants.FlickrResponseKeys.Title] as? String
                 
                 guard let imageUrlString = photoDictionary[Constants.FlickrResponseKeys.MediumURL] as? String else {
-                    self.displayError(error: "Cannot find key '\(Constants.FlickrResponseKeys.MediumURL)' in \(photoDictionary)")
+                    self.printError(error: "Cannot find key '\(Constants.FlickrResponseKeys.MediumURL)' in \(photoDictionary)")
                     return
                 }
                 
@@ -212,7 +198,7 @@ class ViewController: UIViewController {
                                             print(self.imageTitle)
                                         }
                 } else {
-                    self.displayError(error: "Image does not exist at \(String(describing: imageURL))")
+                    self.printError(error: "Image does not exist at \(String(describing: imageURL))")
                 }
             }
         }
@@ -220,7 +206,7 @@ class ViewController: UIViewController {
     }
     
 
-    private func displayError(error: String){
+    private func printError(error: String){
         let alert = UIAlertController(title: "Error", message: error, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
         self.present(alert, animated: true, completion: nil)
@@ -236,20 +222,11 @@ class ViewController: UIViewController {
     }
     
     func saveImage(imageURL: String, imageData: Data?, imageTitle: String) {
-    
-//        let newImages = Images(context: dataController.viewContext)
-//        newImages.title = imageTitle
-//        newImages.imageURL = imageURL
-//        newImages.imageData = imageData
-//        print("done!!!")
-        //try? dataController.viewContext.save()
-        
         let entity = NSEntityDescription.entity(forEntityName: "Images", in: context)
         let newImage = NSManagedObject(entity: entity!, insertInto: context)
         newImage.setValue(imageTitle, forKey: "title")
         newImage.setValue(imageData, forKey: "imageData")
         newImage.setValue(imageURL, forKey: "imageURL")
-        array.append(newImage)
         do {
             try context.save()
         } catch {
@@ -258,20 +235,21 @@ class ViewController: UIViewController {
     }
 }
 
-extension ViewController: UITextFieldDelegate {
+extension SearchViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
     }
     
-    func keyboardWillShow(_ notification: Notification){
-        if !keyboardOnScreen {
-            view.frame.origin.y = keyboardHeight(notification)
+    @objc func keyboardWillShow(_ notification: Notification){
+        print(keyboardHeight(notification))
+        if keyboardHeight(notification) > 0 && !keyboardOnScreen{
+            view.frame.origin.y = -keyboardHeight(notification)
         }
     }
     
-    func keyboardWillHide(_ notification: Notification){
-        if keyboardOnScreen {
+    @objc func keyboardWillHide(_ notification: Notification){
+        if !keyboardOnScreen {
             view.frame.origin.y = 0
         }
     }
@@ -304,7 +282,7 @@ extension ViewController: UITextFieldDelegate {
     }
 }
 
-extension ViewController {
+extension SearchViewController {
     func setUIEnabled(_ enabled: Bool){
         phraseTextField.isEnabled = enabled
         photoTitleLabel.isEnabled = enabled
@@ -312,51 +290,17 @@ extension ViewController {
     }
 }
 
-extension ViewController {
+extension SearchViewController {
     func subscribeToNotification(_ notification: Notification.Name, selector: Selector) {
         NotificationCenter.default.addObserver(self, selector: selector, name: notification, object: nil)
     }
     
-    func subscribeFromAllNotifications(){
+    func unsubscribeFromAllNotifications(){
         NotificationCenter.default.removeObserver(self)
     }
 }
 
 
-extension ViewController:NSFetchedResultsControllerDelegate {
-//    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-//        blockOperations.removeAll(keepingCapacity: false)
-//    }
-//
-//    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
-//                    didChange anObject: Any,
-//                    at indexPath: IndexPath?,
-//                    for type: NSFetchedResultsChangeType,
-//                    newIndexPath: IndexPath?) {
-//
-//        let op: BlockOperation
-//        switch type {
-//        case .insert:
-//            guard let newIndexPath = newIndexPath else { return }
-//            op = BlockOperation { self.collectionView.insertItems(at: [newIndexPath]) }
-//        case .delete:
-//            guard let indexPath = indexPath else { return }
-//            op = BlockOperation { self.collectionView.deleteItems(at: [indexPath]) }
-//        case .move:
-//            guard let indexPath = indexPath,  let newIndexPath = newIndexPath else { return }
-//            op = BlockOperation { self.collectionView.moveItem(at: indexPath, to: newIndexPath) }
-//        case .update:
-//            guard let indexPath = indexPath else { return }
-//            op = BlockOperation { self.collectionView.reloadItems(at: [indexPath]) }
-//        }
-//        blockOperations.append(op)
-//    }
-//
-//    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-//        collectionView.performBatchUpdates({
-//            self.blockOperations.forEach { $0.start() }
-//        }, completion: { finished in
-//            self.blockOperations.removeAll(keepingCapacity: false)
-//        })
-//    }
+extension SearchViewController: NSFetchedResultsControllerDelegate {
 }
+
